@@ -1,8 +1,10 @@
 import 'dart:math';
-import 'package:client/game/core/game_image.dart';
+import 'package:client/game/core/assets/game_image.dart';
 import 'package:client/game/core/game.dart';
+import 'package:client/game/core/abstract/game_object.dart';
+import 'package:client/game/core/command.dart';
 
-abstract class Actor
+abstract class Actor extends GameObject
 {
   Game game;
 
@@ -16,13 +18,23 @@ abstract class Actor
   int get X => position.x;
   int get Y => position.y;
 
-  Actor([this.position = const Point(0, 0), this.rotation = 0.0])
+  Actor(String ID, [this.position = const Point(0, 0), this.rotation = 0.0]) : super(ID)
   {
     visible = true;
     collisionBuffer = 10;
   }
 
-  init();
+  @override
+  update(num delta)
+  {
+    while(commands.isNotEmpty)
+    {
+      Command command = commands.removeFirst();
+      command.execute(this);
+    }
+
+    act();
+  }
 
   act();
 
@@ -83,7 +95,7 @@ abstract class Actor
 
   atGameBottomEdge()
   {
-    return Y > game.height - collisionBuffer;
+    return Y + image.height > game.height - collisionBuffer;
   }
 
   atGameLeftEdge()
@@ -93,6 +105,6 @@ abstract class Actor
 
   atGameRightEdge()
   {
-    return X > game.width - collisionBuffer;
+    return X + image.width > game.width - collisionBuffer;
   }
 }

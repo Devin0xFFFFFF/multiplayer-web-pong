@@ -1,6 +1,6 @@
 import 'dart:html';
-import 'package:client/game/core/actor.dart';
-import 'package:client/game/core/game_image.dart';
+import 'package:client/game/core/abstract/actor.dart';
+import 'package:client/game/core/assets/game_image.dart';
 
 class GameCanvas
 {

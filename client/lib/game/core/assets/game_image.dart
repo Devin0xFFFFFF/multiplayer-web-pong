@@ -17,9 +17,12 @@ class GameImage
     ImageElement imgElement = new ImageElement(src: url);
     imgElement.onLoad.listen((e) {
 
-      //When the image is laoded, render it to a canvas
+      //When the image is loaded, render it to a canvas
       CanvasElement renderCanvas =
       new CanvasElement();
+
+      renderCanvas.width = imgElement.width;
+      renderCanvas.height = imgElement.height;
 
       CanvasRenderingContext2D ctx = renderCanvas.getContext("2d");
       ctx.drawImage(imgElement, 0, 0);
