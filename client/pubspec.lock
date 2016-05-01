@@ -13,6 +13,12 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0-beta.16"
+  archive:
+    description:
+      name: archive
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.20"
   args:
     description:
       name: args
@@ -127,6 +133,12 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.1"
+  image:
+    description:
+      name: image
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.25"
   intl:
     description:
       name: intl
@@ -265,6 +277,12 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.3"
+  xml:
+    description:
+      name: xml
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.4.3"
   yaml:
     description:
       name: yaml

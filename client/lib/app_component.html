@@ -1,1 +1,14 @@
-<h1>My First Angular 2 App</h1>
+<h1>Multiplayer Web Pong</h1>
+
+<div *ngIf="!playing">
+    <div *ngIf="!searching">
+        <button (click)="connect()">Connect to Server</button>
+    </div>
+    <div *ngIf="searching">
+        <h3>Looking for a match...</h3>
+    </div>
+</div>
+
+<div *ngIf="playing">
+    <my-game></my-game>
+</div>
