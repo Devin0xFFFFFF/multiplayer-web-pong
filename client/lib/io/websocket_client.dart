@@ -2,6 +2,7 @@ import 'dart:html';
 import 'package:angular2/core.dart';
 import 'package:client/io/client.dart';
 import 'package:client/config.dart';
+import 'dart:convert';
 
 @Injectable()
 class WebsocketClient extends Client
@@ -21,7 +22,7 @@ class WebsocketClient extends Client
 
     _ws.onOpen.listen((Event e) {
       print('Connected.');
-      recv(CLIENT_STATUS.CONNECT);
+      recvStatus(CLIENT_STATUS.CONNECT);
     });
 
     _ws.onMessage.listen((MessageEvent e){
@@ -30,18 +31,21 @@ class WebsocketClient extends Client
 
     _ws.onClose.listen((Event e) {
       print('Connection closed.');
-      recv(CLIENT_STATUS.DISCONNECT);
+      recvStatus(CLIENT_STATUS.DISCONNECT);
     });
 
     _ws.onError.listen((Event e){
       print('Connection error occurred!');
-      recv(CLIENT_STATUS.ERROR);
+      recvStatus(CLIENT_STATUS.ERROR);
     });
   }
 
   @override
   send(dynamic data)
   {
-    _ws.send(data);
+    if(_ws != null)
+    {
+      _ws.send(JSON.encode(data));
+    }
   }
 }

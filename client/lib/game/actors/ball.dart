@@ -17,7 +17,7 @@ class Ball extends Actor
   @override
   act()
   {
-    move(speed);
+    //move(speed);
 
     if(atGameTopEdge() || atGameBottomEdge())
     {

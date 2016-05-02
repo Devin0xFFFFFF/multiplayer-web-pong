@@ -1,4 +1,5 @@
 import 'package:angular2/core.dart';
+import 'dart:convert';
 
 enum CLIENT_STATUS
 {
@@ -27,5 +28,10 @@ abstract class Client
   listen(onEvent)
   {
     received.listen(onEvent);
+  }
+
+  recvStatus(CLIENT_STATUS STATUS)
+  {
+    recv(JSON.encode({'HEAD': STATUS.toString(), 'BODY': {}}));
   }
 }

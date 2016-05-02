@@ -41,6 +41,6 @@ class GameComponent implements AfterViewInit
     gameRouter = new GameRouter(game);
     clientRouter = new ClientRouter(gameRouter, client);
 
-    game.init(gameRouter);
+    game.init(clientRouter);
   }
 }
