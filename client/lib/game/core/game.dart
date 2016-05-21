@@ -1,15 +1,14 @@
-import 'package:client/game/core/abstract/actor.dart';
-import 'package:client/game/actors/paddle.dart';
+import 'dart:html';
+
 import 'package:client/game/actors/ball.dart';
+import 'package:client/game/actors/paddle.dart';
+import 'package:client/game/core/abstract/actor.dart';
+import 'package:client/game/core/abstract/command_router.dart';
+import 'package:client/game/core/abstract/game_object.dart';
+import 'package:client/game/core/assets/game_image.dart';
 import 'package:client/game/core/game_canvas.dart';
 import 'package:client/game/core/game_event_manager.dart';
-import 'dart:html';
-import 'package:client/game/core/assets/game_image.dart';
-import 'package:client/game/core/abstract/game_object.dart';
 import 'package:client/game/core/player.dart';
-import 'package:client/game/core/routers/game_router.dart';
-import 'package:client/game/core/routers/client_router.dart';
-import 'package:client/game/core/abstract/command_router.dart';
 
 class Game extends GameObject
 {

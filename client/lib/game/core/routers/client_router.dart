@@ -15,11 +15,17 @@ class ClientRouter extends CommandRouter {
 
   @override
   route(Command command) {
-    client.send(command.serialize());
+    client.send({'HEAD': 'CMD', 'BODY': command.serialize()});
   }
 
   handleIncoming(dynamic data) {
-    dynamic message = JSON.decode(data);
+    dynamic message = '';
+
+    try
+    {
+      message = JSON.decode(data);
+    }
+    catch(e){}
 
     if (message is Map) {
       String messageType = message['HEAD'];
@@ -35,6 +41,8 @@ class ClientRouter extends CommandRouter {
           Command command = new Command.from((message['BODY']));
           gameRouter.route(command);
           break;
+        default :
+          print(message['BODY']);
       }
 
     } else {

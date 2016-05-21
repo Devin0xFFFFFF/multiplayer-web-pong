@@ -22,7 +22,7 @@ class AppComponent
     searching = false;
     playing = true;
 
-    client.listen(processServerInput);
+    //client.listen(processServerInput);
   }
 
   connect()
@@ -33,10 +33,10 @@ class AppComponent
 
   processServerInput(dynamic input)
   {
-    if(input == CLIENT_STATUS.DISCONNECT)
-    {
-      print('Lost connection to server!');
-    }
-    print(input);
+//    if(input == CLIENT_STATUS.DISCONNECT)
+//    {
+//      print('Lost connection to server!');
+//    }
+    //print(input);
   }
 }
