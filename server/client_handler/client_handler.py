@@ -2,45 +2,73 @@
 
 import sys
 import getopt
+import threading
 
 import zmq
+
+
+def listen_client(server):
+    while True:
+        data = recv()
+        server.send(data)  # forward stdin to server
+
+
+def send(msg):
+    print(msg)
+    sys.stdout.flush()
+
+
+def recv():
+    return sys.stdin.readline()
 
 
 def main():
     #  Socket to talk to server
     context = zmq.Context()
+    server = context.socket(zmq.PUSH)
     listener = context.socket(zmq.SUB)
 
-    host = "localhost"
-    port = "5556"
+    server_host = "localhost"
+    server_to_port = "5556"
+    server_from_port = "5557"
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:p:", ["host=", "port="])
+        opts, args = getopt.getopt(sys.argv[1:], "s:i:o:", ["server=", "inport=", "outport="])
     except getopt.GetoptError:
-        print('test.py -h <host> -p <port>')
+        print('test.py -s <server> -i <inport> -o <outport>')
         sys.exit(2)
 
     for o, a in opts:
-        if o in ("-h", "--host"):
-            host = a
-        elif o in ("-p", "--port"):
-            port = a
+        if o in ("-s", "--server"):
+            server_host = a
+        elif o in ("-i", "--inport"):
+            server_to_port = a
+        elif o in ("-o", "--outport"):
+            server_from_port = a
         else:
             assert False, "unhandled option"
 
-    print(host)
-    print(port)
+    server_send = "tcp://" + server_host + ":" + server_to_port
+    server_recv = "tcp://" + server_host + ":" + server_from_port
 
-    ip = "tcp://" + host + ":" + port
+    server.connect(server_send)  # connect to game server
+    listener.connect(server_recv)  # subscribe to game server
+    listener.setsockopt_string(zmq.SUBSCRIBE, "")
 
-    run(listener, ip)
+    print("Connected.")
 
+    thread = threading.Thread(target=listen_client, args=(server,))
+    thread.start()
 
-def run(listener, ip):
-    listener.connect(ip)
+    print("Listening...")
 
+    while True:
+        data = listener.recv_string()
+        # print(data)
+        send(data)
 
-
+    server.close()
+    listener.close()
 
 # string = socket.recv_string()
 #
