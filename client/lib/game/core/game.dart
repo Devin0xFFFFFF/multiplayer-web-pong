@@ -114,6 +114,7 @@ class Game extends GameObject
       for(Player player in players)
       {
         player.run();
+        player.pushCommand();
       }
 
       //Make the world act

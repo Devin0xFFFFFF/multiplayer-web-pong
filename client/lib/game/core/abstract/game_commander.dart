@@ -1,15 +1,26 @@
-import 'package:client/game/core/game.dart';
-import 'package:client/game/core/command.dart';
 import 'package:client/game/core/abstract/command_router.dart';
+import 'package:client/game/core/command.dart';
 
 abstract class GameCommander
 {
   CommandRouter endpoint;
+  Command command;
 
   GameCommander(this.endpoint);
 
+  static int count = 0;
+
   sendCommand(Command command)
   {
-    endpoint.route(command);
+    this.command = command;
+  }
+
+  pushCommand()
+  {
+    if(command != null) {
+      endpoint.route(command);
+      command = null;
+      //print(count++);
+    }
   }
 }

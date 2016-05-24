@@ -15,6 +15,7 @@ class ClientRouter extends CommandRouter {
 
   @override
   route(Command command) {
+    //print(command.serialize());
     client.send({'HEAD': 'CMD', 'BODY': command.serialize()});
   }
 
@@ -46,7 +47,8 @@ class ClientRouter extends CommandRouter {
       }
 
     } else {
-      throw new Exception('Invalid message received: ${message}');
+      //TODO: figure out how to handle invalid messages cleanly
+      //throw new Exception('Invalid message received: ${message}');
     }
   }
 }

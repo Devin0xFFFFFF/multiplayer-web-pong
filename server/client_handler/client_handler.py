@@ -9,8 +9,8 @@ import zmq
 
 def listen_client(server):
     while True:
-        data = recv()
-        server.send(data)  # forward stdin to server
+        data = server.recv_string()
+        send(data)
 
 
 def send(msg):
@@ -57,15 +57,16 @@ def main():
 
     print("Connected.")
 
-    thread = threading.Thread(target=listen_client, args=(server,))
+    thread = threading.Thread(target=listen_client, args=(listener,))
+    thread.daemon = True
     thread.start()
 
     print("Listening...")
 
     while True:
-        data = listener.recv_string()
-        # print(data)
-        send(data)
+        data = recv()
+        server.send_string(data)  # forward stdin to server
+        #server.send_string(data)
 
     server.close()
     listener.close()
