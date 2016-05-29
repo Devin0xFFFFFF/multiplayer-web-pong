@@ -10,7 +10,7 @@ Clients connect to Client Handlers, dispatched from Websocketd, giving each thei
 
 The matchmaking server will accept requests, add client handlers to a queue, and pairs them off, passing them a reference to a game server.
 
-Client handlers will connect to a Game Server, which runs the actual Pong game, receives input from clients, and publishes commands.
+Client handlers will connect to a Game Manager Server, which runs the game instances of the actual Pong game, receives input from clients, and publishes commands.
 
 ##Resources
 - [Websockets](https://github.com/Devin0xFFFFFF/websocket_experiments)
@@ -20,3 +20,37 @@ Client handlers will connect to a Game Server, which runs the actual Pong game, 
 
 ##Running Websocketd
 - ./websocketd --port=8080 python client_handler
+
+##Network Protocol
+Game data packets from the client are serialized into JSON
+
+A client will send a message of the form: { data: [ game_id, client_id, message_type, { message_args } ] }
+- game_id is a UUID representing a game instance
+- client_id is a UUID representing a client connection
+- message_type is an integer representing the type of message, such as COMMAND(0)
+- { message_args } is a dictionary of arguments specific to the message_type
+
+A client handler will take this message and wrap it into a multi-part message of the form: [head] [status] [data]
+- HEAD is an application identifier for the server to verify the client is running the correct version, such as mpwp_0.1
+- STATUS is a message status code, used for differntiating between valid, error, and heartbeat messages
+- DATA is the aforementioned valid JSON message { data: ... }
+
+The game server will check for a valid HEAD, then decide on what to do based on STATUS
+Any messages with an invalid HEAD will send back an error response
+
+For a valid message:
+- decode data into a dict, retrieve innner list
+- check GID and CID, see if there is a valid game instance with that id and that client
+- if valid, forward the message to the game instance in the form: [CID] [TYPE] [ARGS]
+- ARGS will be stringified
+
+For an error:
+- check STATUS against error codes, act accordingly
+
+For a heartbeat:
+- respond with a heartbeat packet with valid HEAD, heartbeat STATUS, and empty data
+- heartbeats are to make sure clients and servers are running, network is up
+- client_handlers are in charge of making sure both clients and servers are active
+- clients also send heatbeat packets when no data has been recieved for some set interval
+- client heartbeats will be a single byte, rather than a normal JSON message
+
