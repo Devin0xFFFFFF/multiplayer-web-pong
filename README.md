@@ -24,22 +24,25 @@ Client handlers will connect to a Game Manager Server, which runs the game insta
 ##Network Protocol
 Game data packets from the client are serialized into JSON
 
-A client will send a message of the form: { data: [ game_id, client_id, message_type, { message_args } ] }
+A client will send a message of the form: client_id game_id { data: [ game_id, message_type, { message_args } ] }
 - game_id is a UUID representing a game instance
 - client_id is a UUID representing a client connection
 - message_type is an integer representing the type of message, such as COMMAND(0)
 - { message_args } is a dictionary of arguments specific to the message_type
 
-A client handler will take this message and wrap it into a multi-part message of the form: [head] [status] [data]
+A client handler will take this message and parse it into a multi-part message of the form: [head] [status] [to] [from] [data]
+The parser will split the message from a single string and do a check to make sure it is the correct client connected
 - HEAD is an application identifier for the server to verify the client is running the correct version, such as mpwp_0.1
 - STATUS is a message status code, used for differntiating between valid, error, and heartbeat messages
+- TO is an identifier UUID for the message target, defaults to 0 for unknown reciever, client to a game, game_id
+- FROM is an identifer UUID for the message sender, for a client, this would be the client_id, for a game, game_id
 - DATA is the aforementioned valid JSON message { data: ... }
 
 The game server will check for a valid HEAD, then decide on what to do based on STATUS
 Any messages with an invalid HEAD will send back an error response
 
 For a valid message:
-- decode data into a dict, retrieve innner list
+- parse TO and FROM to get GID and CID respectively
 - check GID and CID, see if there is a valid game instance with that id and that client
 - if valid, forward the message to the game instance in the form: [CID] [TYPE] [ARGS]
 - ARGS will be stringified
