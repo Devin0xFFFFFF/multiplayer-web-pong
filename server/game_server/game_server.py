@@ -32,7 +32,7 @@ def main():
 
     while True:
         msg = "{\"HEAD\": \"CMD\", \"BODY\": {\"targetID\":\"ball\", \"action\": \"move\", \"args\": [10]}}"
-        #print(str(i) + ": " + msg)
+        # print(str(i) + ": " + msg)
         i += 1
         clients.send_string(msg)
 
@@ -41,12 +41,13 @@ def main():
         if inputs in sockets:
             in_msg = inputs.recv_string()
             clients.send_string(in_msg)
-            #print(in_msg)
+            # print(in_msg)
 
         sleep(0.015)
 
     inputs.close()
     clients.close()
+
 
 if __name__ == "__main__":
     main()
