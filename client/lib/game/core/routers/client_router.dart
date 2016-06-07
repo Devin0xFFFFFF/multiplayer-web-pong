@@ -8,6 +8,13 @@ class ClientRouter extends CommandRouter {
   GameRouter gameRouter;
   WebsocketClient client;
 
+  static final String VERSION = "mpwp0.1";
+  static final int OK_STATUS = 100;
+
+  String client_id;
+  String game_id;
+
+
   ClientRouter(this.gameRouter, this.client) {
     client.listen(handleIncoming);
     client.connect();
@@ -16,7 +23,10 @@ class ClientRouter extends CommandRouter {
   @override
   route(Command command) {
     //print(command.serialize());
-    client.send({'HEAD': 'CMD', 'BODY': command.serialize()});
+    String JSONCMD = JSON.encode(command.serialize());
+    String msg = VERSION + " " + OK_STATUS.toString() + " " + JSONCMD;
+    print(msg);
+    client.send(msg);
   }
 
   handleIncoming(dynamic data) {

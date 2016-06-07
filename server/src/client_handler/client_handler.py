@@ -1,16 +1,40 @@
 #!/usr/bin/python
-
+import json
 import sys
 import getopt
 import threading
 
+import time
 import zmq
+
+VERSION = b'mpwp0.1'
+
+
+def pack_data(data):
+    decoded = [x.decode() for x in data]
+    return json.dumps({"data": decoded})
+
+
+def unpack_data(data):
+    print(data)
+    loaded = json.loads(data)["data"]
+    return [x.encode() for x in loaded]
 
 
 def listen_client(server):
     while True:
-        data = server.recv_string()
-        send(data)
+        data = server.recv_multipart()
+        if data:
+            if data[0] == VERSION:
+                print(unpack_data(pack_data(data)))
+                send(pack_data(data))
+            else:
+                pass  # send VERSION_MISMATCH_ERROR
+
+
+def send_server(server, data):
+    unpacked = unpack_data(data)
+    server.send_multipart(unpacked)  # forward stdin to server
 
 
 def send(msg):
@@ -51,9 +75,9 @@ def main():
     server_send = "tcp://" + server_host + ":" + server_to_port
     server_recv = "tcp://" + server_host + ":" + server_from_port
 
-    server.connect(server_send)  # connect to game server
-    listener.connect(server_recv)  # subscribe to game server
-    listener.setsockopt_string(zmq.SUBSCRIBE, "")
+    server.connect(server_send)  # connect to pong_game server
+    listener.connect(server_recv)  # subscribe to pong_game server
+    listener.setsockopt(zmq.SUBSCRIBE, b'')
 
     print("Connected.")
 
@@ -64,23 +88,13 @@ def main():
     print("Listening...")
 
     while True:
-        data = recv()
-        server.send_string(data)  # forward stdin to server
-        #server.send_string(data)
+        # data = recv()
+        data = '{"data": ["mpwp0.1", "100", "0", "0", "0 11606 [\\"paddle1\\", \\"set_position\\", [10, 10]]"]}'
+        send_server(server, data)
+        time.sleep(1)
 
     server.close()
     listener.close()
-
-# string = socket.recv_string()
-#
-# while True:
-#     msg = "{\"HEAD\": \"CMD\", \"BODY\": {\"targetID\":\"ball\", \"action\": \"move\", \"args\": [10]}}"
-#     print(msg)
-#     stdout.flush()
-#     data = stdin.readline()
-#     print(data)
-#     stdout.flush()
-#     sleep(0.015)
 
 if __name__ == "__main__":
     main()

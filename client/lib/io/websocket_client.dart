@@ -45,7 +45,7 @@ class WebsocketClient extends Client
   {
     if(_ws != null)
     {
-      _ws.send(JSON.encode(data));
+      _ws.send(data);
     }
   }
 }

@@ -9,11 +9,11 @@ class Command
 
   Command(this.targetID, this.action, [this.args = const []]){}
 
-  Command.from(Map serialization)
+  Command.from(List serialization)
   {
-    targetID = serialization['targetID'];
-    action = serialization['action'];
-    args = serialization['args'];
+    targetID = serialization[0];
+    action = serialization[1];
+    args = serialization[2];
   }
 
   execute(GameObject target)
@@ -23,8 +23,8 @@ class Command
     mirror.invoke(MirrorSystem.getSymbol(action), args);
   }
 
-  Map serialize()
+  List serialize()
   {
-    return {'targetID': targetID, 'action': action, 'args': args};
+    return [targetID, action,  args];
   }
 }
