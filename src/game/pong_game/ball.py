@@ -1,6 +1,6 @@
 from random import random
 
-from src.game_core.actor import Actor
+from ..game_core.actor import Actor
 
 
 class Ball(Actor):

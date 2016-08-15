@@ -1,7 +1,4 @@
-from src.game_server.server import Server
-
-
-class GameManagerServer(Server):
+class GameManagerServer:
     pass
 
 

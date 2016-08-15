@@ -1,8 +1,8 @@
-from src.pong_game.paddle import Paddle
-from src.game_core.player import Player
+from .paddle import Paddle
+from ..game_core.player import Player
 
-from src.pong_game.ball import Ball
-from src.game_core.game import Game
+from .ball import Ball
+from ..game_core.game import Game
 
 
 class World(Game):

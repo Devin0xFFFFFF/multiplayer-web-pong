@@ -1,5 +1,5 @@
-from config import TYPE_COMMAND
-from src.game_core.command import Command
+from ...server_common import mpwp_protocol
+from .command import Command
 
 
 class GameRouter(object):
@@ -12,7 +12,7 @@ class GameRouter(object):
         while commands:
             cid, msg_type, index, data = commands.pop(0)
 
-            if msg_type == TYPE_COMMAND:
+            if msg_type == mpwp_protocol.GAME_INPUT:
                 self.route_command(cid, data)
 
     def route_command(self, cid, data):

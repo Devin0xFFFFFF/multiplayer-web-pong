@@ -1,8 +1,8 @@
 import time
 
-from src.game_core.game_router import GameRouter
+from .game_router import GameRouter
 
-from src.game_core.game_object import GameObject
+from .game_object import GameObject
 
 
 class Game(GameObject):

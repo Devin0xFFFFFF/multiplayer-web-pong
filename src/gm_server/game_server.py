@@ -8,13 +8,12 @@ import zmq
 from zmq.eventloop.ioloop import IOLoop
 from zmq.eventloop.zmqstream import ZMQStream
 
-from config import TYPE_STATE
-from src.game_server.server import Server
-from src.game_utils.zmq_utils import zpipe
-from src.pong_game.world import World
+from ..server_common import mpwp_protocol
+from ..zmq.zmq_utils import zpipe
+from ..game.pong_game.world import World
 
 
-class GameServer(Server):
+class GameServer(object):
     WORLD_WIDTH = 800
     WORLD_HEIGHT = 600
 
@@ -67,7 +66,7 @@ class GameServer(Server):
         return [self.VERSION, status, send_to.encode(), self.GID, msg.encode()]
 
     def get_state_packet(self, state):
-        formatted_state = "{0} {1} {2}".format(TYPE_STATE,
+        formatted_state = "{0} {1} {2}".format(mpwp_protocol.GAME_STATE,
                                                self.sequence,
                                                {"state": state})
         return self.get_packet(self.STATUS_OK, "0", formatted_state)

@@ -1,9 +1,9 @@
 import math
 
-from src.game_core.game_object import GameObject
-from src.game_core.physics.point import Point
+from .game_object import GameObject
+from .physics.point import Point
 
-from src.game_core.physics.rectangle import Rectangle
+from .physics.rectangle import Rectangle
 
 
 class Actor(GameObject):

@@ -4,7 +4,7 @@
 
 import unittest
 
-import mpwp_protocol
+from ...src.server_common import mpwp_protocol
 
 
 class  Mpwp_Protocol_TestCase(unittest.TestCase):

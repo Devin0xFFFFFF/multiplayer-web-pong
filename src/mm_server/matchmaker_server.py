@@ -1,9 +1,7 @@
 import zmq
 
-from src.game_server.server import Server
 
-
-class MatchmakerServer(Server):
+class MatchmakerServer(object):
     ctx = None
     router_sock = None
     address = None

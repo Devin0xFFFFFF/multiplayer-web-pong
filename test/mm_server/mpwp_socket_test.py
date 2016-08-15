@@ -4,7 +4,7 @@
 
 import unittest
 
-import mpwp_socket
+from . import mpwp_socket
 
 class  Mpwp_socket_TestCase(unittest.TestCase):
     def setUp(self):

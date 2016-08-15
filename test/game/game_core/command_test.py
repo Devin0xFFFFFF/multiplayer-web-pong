@@ -1,8 +1,8 @@
 import unittest
 
-from src.game_core.command import Command
+from ....src.game.game_core.command import Command
 
-from src.game_core.actor import Actor
+from ....src.game.game_core.actor import Actor
 
 
 class CommandTest(unittest.TestCase):

@@ -1,4 +1,4 @@
-from src.game_core.game_commander import GameCommander
+from .game_commander import GameCommander
 
 
 class Player(GameCommander):
