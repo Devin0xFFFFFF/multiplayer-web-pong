@@ -1,9 +1,9 @@
-from ..server_common.mpwp_data_sender import MPWPDataSender
-from ..server_common import mpwp_protocol
+from server_common.mpwp_data_sender import MPWPDataSender
+from server_common import mpwp_protocol
 from threading import Timer
 
 
-class MMClient(MPWPDataSender):
+class MockMMClient(MPWPDataSender):
     state = None
     socket = None
     MATCHMAKER_ID = 0

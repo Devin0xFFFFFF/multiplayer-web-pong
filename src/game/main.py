@@ -1,4 +1,4 @@
-from .pong_game.world import World
+from game.pong_game.world import World
 
 
 def main():

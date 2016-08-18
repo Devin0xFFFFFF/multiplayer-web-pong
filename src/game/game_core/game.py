@@ -35,9 +35,9 @@ class Game(GameObject):
             time.sleep(self.game_speed / 1000)
             self.update(0)
 
-    def step(self, commands):
+    def step(self, commands, update=0):
         self.router.route_commands(commands)
-        self.update(0)
+        self.update(update)
 
     def init(self, command_router):
         self.router = command_router

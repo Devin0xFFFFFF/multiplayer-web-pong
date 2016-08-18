@@ -4,7 +4,8 @@
 
 import unittest
 
-from ..src.mm_server.mm_client import MMClient
+from ..src.mm_server.mock_mm_client import MMClient
+
 from ..src.mm_server.matchmaker import Matchmaker
 from ..test.mm_server.mpwp_socket import MockNetwork, MockDealerSocket, MockRouterSocket
 

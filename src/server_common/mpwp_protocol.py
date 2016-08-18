@@ -1,56 +1,89 @@
 import uuid
 
+# MSG PARTS FOR FLEXIBLE INDEXING
+
 MSG_VERSION = 0
 MSG_STATUS = 1
 MSG_TO = 2
 MSG_FROM = 3
-MSG_BODY = 4
+MSG_MSGNUM = 4
+MSG_TYPE = 5
+MSG_CONTENT = 6
 
-VERSION = "mpwp_v1.0"
+# VERSION TAG
+
+VERSION = b'mpwp_v1.0'
+
+# STATUS CODES
 
 STATUS_OK = b'100'
-STATUS_CONNECT = b'101'
-STATUS_DISCONNECT = b'102'
-STATUS_CONFIRM = b'103'
-STATUS_CREATE = b'104'
-STATUS_CREATED = b'105'
-STATUS_READY = b'106'
+STATUS_PING = b'101'
 
-STATUS_FAIL = b'500'
+STATUS_CONNECT = b'200'
+STATUS_CONNECT_OK = b'201'
+STATUS_DISCONNECT = b'202'
+STATUS_REGISTER = b'203'
+STATUS_REGISTER_OK = b'204'
+STATUS_RESYNC = b'205'
+STATUS_RESYNC_OK = b'206'
+
+STATUS_LOG = b'300'
+
+STATUS_SERVER_ERROR = b'500'
+STATUS_VERSION_MISMATCH_ERROR = b'501'
+STATUS_INCORRECT_ID_ERROR = b'502'
+
+# SERVER IDS
 
 MATCHMAKER_ID = b'0'
 GAME_MANAGER_ID = b'1'
+CLIENT_HANDLER_ID = b'2'
+LOGGER_ID = b'3'
 
-GAME_CREATE = 0
-GAME_STATE = 1
-GAME_INPUT = 2
+# GAME MSG TYPES
 
-MATCHMAKER_QUEUE = 0
-MATCHMAKER_DEQUEUE = 1
-MATCHMAKER_FOUND = 2
-MATCHMAKER_ACCEPT = 3
-MATCHMAKER_DECLINE = 4
-MATCHMAKER_LOADING = 5
-MATCHMAKER_LAUNCH = 6
-MATCHMAKER_SYNC = 7
+GAME_CREATE = b'0'
+GAME_STATE = b'1'
+GAME_INPUT = b'2'
+
+# MATCHMAKER MSG TYPES
+
+MATCHMAKER_QUEUE = b'0'
+MATCHMAKER_DEQUEUE = b'1'
+MATCHMAKER_FOUND = b'2'
+MATCHMAKER_ACCEPT = b'3'
+MATCHMAKER_DECLINE = b'4'
+MATCHMAKER_LOADING = b'5'
+MATCHMAKER_LAUNCH = b'6'
+MATCHMAKER_SYNC = b'7'
 
 
 def get_uuid():
-    return ("{}".format(uuid.uuid4())).encode()
+    return ("{}".format(uuid.uuid1())).encode()
 
 
-def get_mpwp_packet(STATUS, TO, FROM, BODY):
-    # MSG = [HEAD(VERSION, STATUS, TO, FROM), BODY(%s)]
-    return [VERSION, STATUS, TO, FROM, BODY]
+def get_mpwp_packet(STATUS, TO, FROM, MSGNUM, TYPE):
+    return [VERSION, STATUS, TO, FROM, MSGNUM, TYPE]
 
 
-def get_mpwp_data_packet(TO, FROM, DATA):
-    return get_mpwp_packet(STATUS_OK, TO, FROM, {'data': DATA})
+def get_mpwp_status_packet(STATUS, TO, FROM):
+    return [VERSION, STATUS, TO, FROM]
 
 
-def serialize_packet(packet):
+def get_mpwp_content_packet(TO, FROM, MSGNUM, TYPE, CONTENT=None):
+    packet = get_mpwp_packet(STATUS_OK, TO, FROM, MSGNUM, TYPE)
+    if CONTENT:
+        if CONTENT is not list:
+            packet.append(CONTENT)
+        else:
+            packet = packet + CONTENT
     return packet
 
 
-def msg_data(msg):
-    return msg[MSG_BODY]['data']
+def get_log_packet(FROM, MSGNUM, TYPE, MSG=b''):
+    packet = [VERSION, STATUS_LOG, LOGGER_ID, FROM, MSGNUM, TYPE, MSG]
+    return packet
+
+
+def msg_content(msg):
+    return msg[MSG_CONTENT:]

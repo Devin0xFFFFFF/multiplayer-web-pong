@@ -1,97 +1,159 @@
 #!/usr/bin/python
 import json
 import sys
-import getopt
 import threading
 
 import time
 import zmq
 
-VERSION = b'mpwp0.1'
+from server_common import mpwp_protocol
+
+from server_common import config
+
+from server_common.mpwp_data_sender import MPWPDataSender
 
 
-def pack_data(data):
-    decoded = [x.decode() for x in data]
-    return json.dumps({"data": decoded})
+class ClientHandler(MPWPDataSender):
+    connected = False
+    server_sock = None
 
+    def __init__(self):
+        #  Socket to talk to servers
+        super(ClientHandler, self).__init__()
 
-def unpack_data(data):
-    print(data)
-    loaded = json.loads(data)["data"]
-    return [x.encode() for x in loaded]
+    def start(self):
+        # start thread to listen to client
+        thread = threading.Thread(target=self.listen_client, args=())
+        thread.daemon = True
+        thread.start()
 
+        print("Listening...")
 
-def listen_client(server):
-    while True:
-        data = server.recv_multipart()
-        if data:
-            if data[0] == VERSION:
-                print(unpack_data(pack_data(data)))
-                send(pack_data(data))
+        # need to add some AUTH stuff to get UUID
+        # AUTH must check if UUID already exists somewhere due to disconnect
+
+    def connect_to_matchmaker(self):
+        self.connect_to_server(config.MATCHMAKER_ADDR)
+
+    def connect_to_game_manager(self):
+        self.connect_to_server(config.GAME_MANAGER_ADDR)
+
+    def connect_to_server(self, addr):
+        self.reset_socket()
+        self.server_sock.connect(addr)
+        self.connected = True
+
+        self.listen_server()
+
+    def reset_socket(self):
+        self.disconnect()
+
+        self.server_sock = self.context.socket(zmq.DEALER)
+        self.server_sock.setsockopt(zmq.IDENTITY, self.ID)
+
+    def disconnect(self):
+        # add some error checking here if socket fails to close
+        if self.connected and self.server_sock:
+            self.connected = False
+            self.server_sock.close()
+            self.server_sock = None
+
+    @staticmethod
+    def pack(msg):
+        decoded = [x.decode() for x in msg]
+
+        return json.dumps({"data": decoded})
+
+    @staticmethod
+    def unpack(msg):
+        loaded = json.loads(msg)["data"]
+        return [x.encode() for x in loaded]
+
+    def listen_server(self):
+        while True:
+            msg = self.recv_server()
+            self.log(1, msg)
+            if msg:
+                if msg[mpwp_protocol.MSG_VERSION] == mpwp_protocol.VERSION:
+                    if msg[mpwp_protocol.MSG_TO] == self.ID:
+                        self.send_ws(self.pack(msg))
+                    else:
+                        pass  # send INCORRECT_TO_ID_ERROR to server
+                else:
+                    pass  # send VERSION_MISMATCH_ERROR
             else:
-                pass  # send VERSION_MISMATCH_ERROR
+                break  # fatal error
 
+    def listen_client(self):
+        while True:
+            msg = self.recv_ws()
+            try:
+                msg = self.unpack(msg)
+            except TypeError:
+                msg = None
+            self.log(1, msg)
+            if msg:
+                if msg[mpwp_protocol.MSG_VERSION] == mpwp_protocol.VERSION:
+                    if self.ID:
+                        if not self.connected:
+                            if msg[mpwp_protocol.MSG_TO] == mpwp_protocol.MATCHMAKER_ID:
+                                self.connect_to_matchmaker()
+                            elif msg[mpwp_protocol.MSG_TO] == mpwp_protocol.GAME_MANAGER_ID:
+                                self.connect_to_game_manager()
+                        else:
+                            self.forward_to_server(msg)
+                    else:
+                        self.handle_connection(msg)
+                else:
+                    pass  # send VERSION_MISMATCH_ERROR
+            else:
+                break  # fatal error
 
-def send_server(server, data):
-    unpacked = unpack_data(data)
-    server.send_multipart(unpacked)  # forward stdin to gm_server
+    def forward_to_server(self, msg):
+        if msg[mpwp_protocol.MSG_FROM] == self.ID:
+            self.send_server(msg)
+        else:
+            pass  # send INCORRECT_FROM_ID_ERROR to client
 
+    def handle_connection(self, msg):
+        if msg[mpwp_protocol.MSG_TO] == mpwp_protocol.CLIENT_HANDLER_ID:
+            if msg[mpwp_protocol.MSG_STATUS] == mpwp_protocol.STATUS_CONNECT and not self.ID:
+                if msg[mpwp_protocol.MSG_FROM] != b'':  # need to check if it exists somewhere
+                    # self.check_existing_id()
+                    pass  # eventually check GAME_MANAGER to see if received ID exists
+                    # could possibly rejoin game after losing connection
+                else:
+                    self.assign_id()
+                    self.send_connect_ok()
+        else:
+            pass  # send INCORRECT_TO_ID_ERROR to client
 
-def send(msg):
-    print(msg)
-    sys.stdout.flush()
+    def send_ws(self, msg):
+        print(msg)
+        sys.stdout.flush()
 
+    def recv_ws(self):
+        return sys.stdin.readline()
 
-def recv(msg):
-    return sys.stdin.readline()
+    def send_server(self, msg):
+        self.server_sock.send_multipart(msg)
+
+    def recv_server(self):
+        return self.server_sock.recv_multipart()
+
+    def send_connect_ok(self):
+        msg = mpwp_protocol.get_mpwp_status_packet(mpwp_protocol.STATUS_CONNECT_OK,
+                                                   self.ID,
+                                                   mpwp_protocol.CLIENT_HANDLER_ID)
+        msg = self.pack(msg)
+        self.log(1, msg)
+        self.send_ws(msg)
 
 
 def main():
-    #  Socket to talk to gm_server
-    context = zmq.Context()
-    server = context.socket(zmq.DEALER)
+    ch = ClientHandler()
+    ch.start()
 
-    server_host = "localhost"
-    server_to_port = "5556"
-    server_from_port = "5557"
-
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "s:i:o:", ["gm_server=", "inport=", "outport="])
-    except getopt.GetoptError:
-        print('test.py -s <gm_server> -i <inport> -o <outport>')
-        sys.exit(2)
-
-    for o, a in opts:
-        if o in ("-s", "--gm_server"):
-            server_host = a
-        elif o in ("-i", "--inport"):
-            server_to_port = a
-        elif o in ("-o", "--outport"):
-            server_from_port = a
-        else:
-            assert False, "unhandled option"
-
-    server_send = "tcp://" + server_host + ":" + server_to_port
-    server_recv = "tcp://" + server_host + ":" + server_from_port
-
-    server.connect(server_send)  # connect to pong_game gm_server
-
-    print("Connected.")
-
-    thread = threading.Thread(target=listen_client, args=(listener,))
-    thread.daemon = True
-    thread.start()
-
-    print("Listening...")
-
-    while True:
-        # data = recv()
-        data = '{"data": ["mpwp0.1", "100", "0", "0", "0 11606 [\\"paddle1\\", \\"set_position\\", [10, 10]]"]}'
-        send_server(server, data)
-        time.sleep(1)
-
-    server.close()
-    listener.close()
 
 if __name__ == "__main__":
     main()

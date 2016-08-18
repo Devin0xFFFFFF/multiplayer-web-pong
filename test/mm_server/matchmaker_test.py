@@ -4,39 +4,32 @@
 
 import unittest
 
-from ...src.mm_server import matchmaker
-from . import mpwp_socket
+from mm_server import matchmaker
 
 
 class Matchmaker_TestCase(unittest.TestCase):
-    mm_addr = "0.0.0.0:8000"
+
+    mock_outgoing_buffer = []
 
     def setUp(self):
-        self.nw = mpwp_socket.MockNetwork()
-        self.mms = mpwp_socket.MockRouterSocket(self.nw)
-        self.mms.bind(self.mm_addr)
-        self.connect_clients()
-        self.mm = matchmaker.Matchmaker(self.mms)
+        self.mm = matchmaker.Matchmaker(self.mock_send_cb)
 
-    def connect_clients(self):
-        self.c1 = mpwp_socket.MockDealerSocket(self.nw)
-        self.c1.connect(self.mm_addr)
+    def tearDown(self):
+        self.mm = None
+        self.mock_outgoing_buffer.clear()
 
-        self.c2 = mpwp_socket.MockDealerSocket(self.nw)
-        self.c2.connect(self.mm_addr)
+    def mock_send_cb(self, msg):
+        self.mock_outgoing_buffer.append(msg)
 
-    # def tearDown(self):
-    #    self.foo.dispose()
-    #    self.foo = None
+    def test_recv(self):
+        pass
 
-    def test_matchmaker_queue(self):
-        # assert x != y;
-        # self.assertEqual(x, y, "Msg");
-        self.mm.enqueue(12345)
+    def test_enqueue(self):
+        self.mm.enqueue(b'12345')
         self.assertEqual(1, len(self.mm.queue))
 
         id = self.mm.queue[0].CID
-        self.assertEqual(12345, id)
+        self.assertEqual(b'12345', id)
 
     def test_matchmaker_queue_duplicate(self):
         self.mm.enqueue(12345)
@@ -85,9 +78,9 @@ class Matchmaker_TestCase(unittest.TestCase):
         self.assertEqual(False, pool.clients[1].accepted)
         self.assertEqual(1, len(self.mm.queue))
 
-    def test_matchmaker_timeout(self):
+    def test_matchmaker_found_timeout(self):
         pool = self.create_match([1, 2])
-        self.mm.timeout(pool)
+        self.mm.found_timeout(pool)
 
         self.assertEqual(0, len(self.mm.pools))
         self.assertEqual(0, len(self.mm.queue))
@@ -99,14 +92,14 @@ class Matchmaker_TestCase(unittest.TestCase):
 
         self.assertEqual(0, len(self.mm.pools))
 
-    def test_matchmaker_found_packet(self):
-        self.assertEqual(['mpwp_v1.0', 100, 1, 0, {'data': [0, 2, '']}], self.mm.get_found_message(1))
-
     def create_match(self, ids):
         for id in ids:
             self.mm.enqueue(id)
 
-        return self.mm.pools[0]
+        pool = self.mm.pools[0]
+        pool.timer.cancel()
+
+        return pool
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-from src.game_core.physics.point import Point
+from game.game_core.physics.point import Point
 
 
 class Rectangle:
