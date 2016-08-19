@@ -1,6 +1,6 @@
 import unittest
 
-from ....src.game.game_core.actor import Actor
+from game.game_core.actor import Actor
 
 
 class ActorTest(unittest.TestCase):

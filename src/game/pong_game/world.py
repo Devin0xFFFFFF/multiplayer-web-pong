@@ -13,7 +13,7 @@ class World(Game):
     count = 0
 
     def __init__(self, width, height):
-        super(World, self).__init__("world", width, height)
+        super(World, self).__init__(b"world", width, height)
 
         self.setup()
         # self.print_state()
@@ -24,13 +24,13 @@ class World(Game):
         return states
 
     def setup(self):
-        self.ball = Ball("ball", 50, 50)
+        self.ball = Ball(b"ball", 50, 50)
         self.add_actor(self.ball, self.width / 2, self.height / 2)
 
-        self.paddle1 = Paddle("paddle1", 20, 200)
+        self.paddle1 = Paddle(b"paddle1", 20, 200)
         self.add_actor(self.paddle1, 20, self.height / 2)
 
-        self.paddle2 = Paddle("paddle2", 20, 200)
+        self.paddle2 = Paddle(b"paddle2", 20, 200)
         self.add_actor(self.paddle2, self.width - 20, self.height / 2)
 
         self.add_player(Player(b'0', self.paddle1))

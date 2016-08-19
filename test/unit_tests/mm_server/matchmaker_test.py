@@ -12,7 +12,7 @@ class Matchmaker_TestCase(unittest.TestCase):
     mock_outgoing_buffer = []
 
     def setUp(self):
-        self.mm = matchmaker.Matchmaker(self.mock_send_cb)
+        self.mm = matchmaker.Matchmaker(self.mock_send_cb, self.mock_create_game_cb)
 
     def tearDown(self):
         self.mm = None
@@ -20,6 +20,9 @@ class Matchmaker_TestCase(unittest.TestCase):
 
     def mock_send_cb(self, msg):
         self.mock_outgoing_buffer.append(msg)
+
+    def mock_create_game_cb(self, msg):
+        pass
 
     def test_recv(self):
         pass
@@ -51,6 +54,7 @@ class Matchmaker_TestCase(unittest.TestCase):
         self.assertEqual(1, len(self.mm.pools))
 
         pool = self.mm.pools[0]
+        pool.timer.cancel()
         c = pool.clients[0].CID
         self.assertEqual(1, c)
 

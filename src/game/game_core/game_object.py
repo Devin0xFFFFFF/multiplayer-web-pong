@@ -3,7 +3,7 @@ class GameObject(object):
     commands = None
 
     def __init__(self, obj_id):
-        if isinstance(obj_id, str):
+        if isinstance(obj_id, bytes):
             self.ID = obj_id
         else:
             raise TypeError

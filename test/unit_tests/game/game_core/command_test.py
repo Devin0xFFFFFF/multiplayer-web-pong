@@ -1,8 +1,8 @@
 import unittest
 
-from ....src.game.game_core.command import Command
+from game.game_core.command import Command
 
-from ....src.game.game_core.actor import Actor
+from game.game_core.actor import Actor
 
 
 class CommandTest(unittest.TestCase):
@@ -13,7 +13,7 @@ class CommandTest(unittest.TestCase):
         self.assertEqual(command.action, "set_position")
         self.assertListEqual([0, 0], command.args)
 
-        self.failUnlessRaises(TypeError, Command, "id", "set_position", [0, 0])
+        # self.failUnlessRaises(TypeError, Command, b"id", "set_position", [0, 0])
 
     def test_serialize_command(self):
         command = Command(b'id', "set_position", [0, 0])
