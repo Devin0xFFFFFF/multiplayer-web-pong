@@ -21,6 +21,9 @@ class MPWPDataSender(object):
             self.log_sock = self.context.socket(zmq.PUSH)
             self.log_sock.connect(config.LOGGER_ADDR)
 
+    def close(self):
+        self.log_sock.close()
+
     def assign_id(self):
         self.ID = mpwp_protocol.get_uuid()
 
@@ -34,5 +37,5 @@ class MPWPDataSender(object):
             packet = mpwp_protocol.get_log_packet(self.ID, str(self.LOGNUM).encode(),
                                                   str(log_level).encode(), str(log_msg).encode())
             self.LOGNUM += 1
-            print(packet)
+            # print(packet)
             self.log_sock.send_multipart(packet)

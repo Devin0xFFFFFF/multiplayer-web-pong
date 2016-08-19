@@ -10,4 +10,4 @@ MATCHMAKER_ADDR = "tcp://" + MATCHMAKER_IP + ":" + MATCHMAKER_PORT
 GAME_MANAGER_ADDR = "tcp://" + GAME_MANAGER_IP + ":" + GAME_MANAGER_PORT
 LOGGER_ADDR = "tcp://" + LOGGER_IP + ":" + LOGGER_PORT
 
-GAME_MANAGER_ADDR_INTERNAL = "inproc://manager"
+GAME_MANAGER_ADDR_INTERNAL = "inproc://mpwp_game_manager.ipc"

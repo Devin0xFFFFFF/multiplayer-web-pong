@@ -73,10 +73,12 @@ def get_mpwp_status_packet(STATUS, TO, FROM):
 def get_mpwp_content_packet(TO, FROM, MSGNUM, TYPE, CONTENT=None):
     packet = get_mpwp_packet(STATUS_OK, TO, FROM, MSGNUM, TYPE)
     if CONTENT:
-        if CONTENT is not list:
+        if type(CONTENT) == list:
+            packet = packet + CONTENT
+        elif type(CONTENT) is bytes:
             packet.append(CONTENT)
         else:
-            packet = packet + CONTENT
+            raise TypeError
     return packet
 
 

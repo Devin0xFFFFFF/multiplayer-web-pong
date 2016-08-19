@@ -11,13 +11,18 @@ class GameManager(MPWPDataSender):
     send_to_game_cb = None
 
     def __init__(self, send_to_client_cb, send_to_game_cb):
+        super().__init__()
+        self.ID = mpwp_protocol.GAME_MANAGER_ID
         self.games = {}
         self.send_to_client_cb = send_to_client_cb
         self.send_to_game_cb = send_to_game_cb
 
-    def create_game(self, clients):
+        self.log(1, "Started Game Manager.")
+
+    def create_game(self, clients, matchmaker_alias):
         game = GameInstance(args=clients)
         self.games[game.GID] = game
+        game.matchmaker_alias = matchmaker_alias
         game.start()
         return game
 
@@ -28,15 +33,6 @@ class GameManager(MPWPDataSender):
                                                    mpwp_protocol.GAME_MANAGER_ID)
         self.send_to_game_cb(msg)
         self.alert_game_created(game)
-
-    def recv_from_client(self, to_id, from_id, msg_type, msg_content):
-        if to_id == mpwp_protocol.GAME_MANAGER_ID:
-            if from_id == mpwp_protocol.MATCHMAKER_ID:
-                self.handle_matchmaker_incoming(to_id, from_id, msg_type, msg_content)
-            else:
-                pass  # error, invalid sender!
-        else:
-            self.handle_client_incoming(to_id, from_id, msg_type, msg_content)
 
     def recv_from_game(self, msg):
         if msg[mpwp_protocol.MSG_TO] == mpwp_protocol.GAME_MANAGER_ID:
@@ -59,7 +55,7 @@ class GameManager(MPWPDataSender):
     def handle_matchmaker_incoming(self, to_id, from_id, msg_type, msg_content):
         if msg_type == mpwp_protocol.GAME_CREATE:
             clients = msg_content
-            self.create_game(clients)
+            self.create_game(clients, to_id)
         else:
             pass  # invalid type!
 
@@ -79,5 +75,6 @@ class GameManager(MPWPDataSender):
             self.send_to_client_cb(cli_msg)
 
     def alert_game_created(self, game):
-        msg = self.get_packet(mpwp_protocol.MATCHMAKER_ID, mpwp_protocol.MATCHMAKER_LAUNCH, game.GID)
-        self.forward_to_all_clients(msg, game.clients)
+        msg = self.get_packet(game.matchmaker_alias, mpwp_protocol.MATCHMAKER_LAUNCH, game.GID)
+        game.matchmaker_alias = None
+        self.send_to_client_cb(msg)

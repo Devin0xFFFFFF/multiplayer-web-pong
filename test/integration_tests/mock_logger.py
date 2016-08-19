@@ -32,15 +32,15 @@ class MockLogger(object):
                 print("VERSION ERROR: {}".format(msg))
 
     def log_msg(self, msg):
-        log_lvl = msg[mwp.MSG_TYPE]
-        log_num = msg[mwp.MSG_MSGNUM]
-        log_from = msg[mwp.MSG_FROM]
+        log_lvl = int(msg[mwp.MSG_TYPE].decode())
+        log_num = int(msg[mwp.MSG_MSGNUM].decode())
+        log_from = "_" + msg[mwp.MSG_FROM].decode()
         log_content = msg[mwp.MSG_CONTENT]
 
         self.log_buffer.append(log_content)
         self.log_buffer = self.log_buffer[-self.log_buf_size:]
 
-        print("{} @ {} : #{} {}".format(log_lvl, log_from, log_num, log_content))
+        print("{} @{} #{}:    {}".format(log_lvl, log_from, log_num, log_content))
 
 
 def main():

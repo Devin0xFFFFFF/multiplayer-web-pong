@@ -14,6 +14,7 @@ class GameInstance(threading.Thread):
     context = None
     dealer_sock = None
     game_world = None  # Game thread
+    matchmaker_alias = None
     connected = True
     running = False
     update_time = 0
@@ -44,7 +45,7 @@ class GameInstance(threading.Thread):
         self.unprocessed_commands = []
 
     def connect_to_manager(self):
-        self.dealer_sock.connect(config.GAME_MANAGER_ADDR_INTERNAL)
+        self.dealer_sock.connect("tcp://localhost:6000")
 
         msg = mpwp_protocol.get_mpwp_status_packet(mpwp_protocol.STATUS_CONNECT,
                                                    mpwp_protocol.GAME_MANAGER_ID,

@@ -107,13 +107,13 @@ class Matchmaker(MPWPDataSender):
 
         create_game_msg = self.get_packet(mpwp_protocol.GAME_MANAGER_ID,
                                           mpwp_protocol.GAME_CREATE,
-                                          pool.clients)
-        self.create_game_cb(create_game_msg)
+                                          [x.CID for x in pool.clients])
+        gid = self.create_game_cb(create_game_msg)
 
         pool.loaded = True
         pool.timer.cancel()
 
-        self.alert_match_launch(pool.clients)
+        self.alert_match_launch(pool.clients, gid)
 
         self.log(1, "MATCHMAKING SERVER GAME CREATED WITH: {}".format(pool.clients))
         # probably want to multithread this, as it could take a while
@@ -175,9 +175,9 @@ class Matchmaker(MPWPDataSender):
             msg = self.get_packet(client.CID, mpwp_protocol.MATCHMAKER_LOADING, "")
             self.send(msg)
 
-    def alert_match_launch(self, clients):
+    def alert_match_launch(self, clients, gid):
         for client in clients:
-            msg = self.get_packet(client.CID, mpwp_protocol.MATCHMAKER_LAUNCH, "")
+            msg = self.get_packet(client.CID, mpwp_protocol.MATCHMAKER_LAUNCH, gid)
             self.send(msg)
 
     def alert_match_decline(self, CID):
