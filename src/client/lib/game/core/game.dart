@@ -9,6 +9,7 @@ import 'package:client/game/core/assets/game_image.dart';
 import 'package:client/game/core/game_canvas.dart';
 import 'package:client/game/core/game_event_manager.dart';
 import 'package:client/game/core/player.dart';
+import 'package:client/game/core/command.dart';
 
 class Game extends GameObject
 {
@@ -18,7 +19,7 @@ class Game extends GameObject
   GameCanvas canvas;
   GameEventManager eventManager;
 
-  CommandRouter router;
+  dynamic sendCommandsCB;
 
   List<Player> players;
   List<Actor> actors;
@@ -59,10 +60,21 @@ class Game extends GameObject
   }
 
   @override
-  init(CommandRouter router)
+  init([dynamic args=null])
   {
-    this.router = router;
-    player = new Player(router, paddle1);
+    assert(args != null);
+    assert(args is List);
+    String paddle = args[0];
+    this.sendCommandsCB = args[1];
+    if(paddle == paddle1.ID)
+    {
+      this.player = new Player(paddle1);
+    }
+    else
+    {
+      this.player = new Player(paddle2);
+    }
+
     addPlayer(player);
   }
 
@@ -104,17 +116,20 @@ class Game extends GameObject
 
   void update(num delta) {
     final num diff = delta - _lastTimeStamp;
+    List<Command> commands;
 
     if (diff > GAME_SPEED) {
       _lastTimeStamp = delta;
 
       canvas.clear();
 
+      commands = [];
+
       //Handle player commands
       for(Player player in players)
       {
         player.run();
-        player.pushCommand();
+        commands.addAll(player.getCommands());
       }
 
       //Make the world act
@@ -127,6 +142,8 @@ class Game extends GameObject
       }
 
       canvas.draw(actors);
+
+      this.sendCommandsCB(commands);
     }
 
     // keep looping
@@ -135,15 +152,7 @@ class Game extends GameObject
 
   act()
   {
-    if(ball.intersecting(paddle1))
-    {
-      ball.bounce();
-    }
-    else if(ball.intersecting(paddle2))
-    {
-      ball.bounce();
-    }
-    else if(ball.atGameLeftEdge())
+    if(ball.atGameLeftEdge())
     {
       paddle1Score++;
       ball.reset();
@@ -153,5 +162,16 @@ class Game extends GameObject
       paddle2Score++;
       ball.reset();
     }
+  }
+
+  void applyState(Map states)
+  {
+    //TODO: make the state easier to read, include proper data
+    states.forEach((String id, List state){
+      Actor actor = this.getActor(id);
+      actor.visible = state[0];
+      actor.position = new Point(state[1], state[2]);
+      actor.rotation = state[5].toDouble();
+    });
   }
 }

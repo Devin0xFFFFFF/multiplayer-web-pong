@@ -1,14 +1,36 @@
 <h1>Multiplayer Web Pong</h1>
 
-<div *ngIf="!playing">
-    <div *ngIf="!searching">
-        <button (click)="connect()">Connect to Server</button>
-    </div>
-    <div *ngIf="searching">
-        <h3>Looking for a match...</h3>
-    </div>
+<div *ngIf="started">
+    <h1>Connecting To Server...</h1>
+</div>
+
+<div *ngIf="waiting">
+    <button (click)="enqueueMM()">Search For A Match</button>
+</div>
+
+<div *ngIf="searching">
+    <h1>Searching...</h1>
+    <button (click)="dequeueMM()">Cancel Search</button>
+</div>
+
+<div *ngIf="found">
+    <h1>Match Found!</h1>
+    <button (click)="acceptMM()">Accept</button>
+    <button (click)="declineMM()">Decline</button>
+</div>
+
+<div *ngIf="loading">
+    <h1>Preparing Match...</h1>
+</div>
+
+<div *ngIf="launching">
+    <h1>Connecting To Game Server...</h1>
 </div>
 
 <div *ngIf="playing">
     <my-game></my-game>
+</div>
+
+<div *ngIf="blocked">
+    <h1>Blocked From Searching: Failed to Ready Up or Declined.</h1>
 </div>

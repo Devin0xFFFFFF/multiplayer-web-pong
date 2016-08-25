@@ -8,7 +8,7 @@ class Ball extends Actor
   Ball(String ID) : super(ID);
 
   @override
-  init(dynamic args)
+  init([dynamic args=null])
   {
     speed = 10;
     reset();

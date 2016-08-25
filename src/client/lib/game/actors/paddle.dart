@@ -1,5 +1,4 @@
 import 'package:client/game/core/abstract/actor.dart';
-import 'dart:html';
 
 class Paddle extends Actor
 {
@@ -9,19 +8,12 @@ class Paddle extends Actor
   Paddle(String ID) : super(ID);
   
   @override
-  init(dynamic args) {
+  init([dynamic args=null]) {
     speed = 10;
   }
 
   @override
   act() {
-//    if (game.keyboard.isPressed(KeyCode.UP) && !atGameTopEdge())
-//    {
-//      setPosition(X, Y - speed);
-//    }
-//    else if (game.keyboard.isPressed(KeyCode.DOWN) && !atGameBottomEdge())
-//    {
-//      setPosition(X, Y + speed);
-//    }
+
   }
 }

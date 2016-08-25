@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'package:client/game/core/abstract/actor.dart';
+
 import 'package:client/game/core/command.dart';
 
 abstract class GameObject
@@ -12,7 +12,7 @@ abstract class GameObject
     commands = new Queue<Command>();
   }
 
-  init(dynamic args);
+  init([dynamic args=null]);
 
   update(num delta);
 

@@ -38,6 +38,7 @@ class ClientHandlerTest(unittest.TestCase):
     def test_client_handler_listen_server(self):
         self.cli_h.mock_server_send(self.msg1_unpacked)
         self.cli_h.mock_server_send(None)
+        self.cli_h.connected = True
         self.cli_h.listen_server()
 
         self.assertEqual(1, len(self.cli_h.from_server))
@@ -70,10 +71,17 @@ class ClientHandlerTest(unittest.TestCase):
         self.assertEqual(1, len(self.cli_h.from_server))
 
     def test_send_connect_ok(self):
-        self.cli_h.send_connect_ok()
+        self.cli_h.send_connect_ok(b'2')
 
         self.assertEqual(1, len(self.cli_h.from_server))
         self.assertEqual(self.cli_h.from_server[0], self.connect_msg_outgoing)
+
+    def test_connect_to_game_manager_after_matchmaker(self):
+        self.cli_h.connect_to_matchmaker()
+        self.cli_h.disconnect()
+        self.cli_h.connect_to_game_manager()
+
+        self.assertEqual(True, self.cli_h.connected)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,17 @@
 import 'package:client/game/core/command.dart';
+import 'package:client/game/core/game.dart';
 
-abstract class CommandRouter
+class CommandRouter
 {
-  route(Command command);
+  Game game;
+
+  CommandRouter(this.game)
+  {
+
+  }
+
+  void route(Command command)
+  {
+
+  }
 }

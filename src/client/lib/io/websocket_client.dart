@@ -1,15 +1,15 @@
 import 'dart:html';
+
 import 'package:angular2/core.dart';
-import 'package:client/io/client.dart';
 import 'package:client/config.dart';
-import 'dart:convert';
+import 'package:client/io/abstract_client.dart';
 
 @Injectable()
-class WebsocketClient extends Client
+class WebsocketClient extends AbstractClient
 {
   WebSocket _ws;
 
-  WebsocketClient(GameConfig config) : super(config.IP, config.PORT);
+  WebsocketClient(GameConfig config) : super(config.SERVER_IP, config.SERVER_PORT);
 
   @override
   connect()
@@ -22,7 +22,10 @@ class WebsocketClient extends Client
 
     _ws.onOpen.listen((Event e) {
       print('Connected.');
-      recvStatus(CLIENT_STATUS.CONNECT);
+      if(this.onConnect != null)
+      {
+        this.onConnect();
+      }
     });
 
     _ws.onMessage.listen((MessageEvent e){
@@ -30,13 +33,12 @@ class WebsocketClient extends Client
     });
 
     _ws.onClose.listen((Event e) {
+      _ws = null;
       print('Connection closed.');
-      recvStatus(CLIENT_STATUS.DISCONNECT);
     });
 
     _ws.onError.listen((Event e){
       print('Connection error occurred!');
-      recvStatus(CLIENT_STATUS.ERROR);
     });
   }
 

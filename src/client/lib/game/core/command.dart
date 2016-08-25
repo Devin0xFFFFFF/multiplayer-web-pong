@@ -1,5 +1,6 @@
 import 'dart:mirrors';
 import 'package:client/game/core/abstract/game_object.dart';
+import 'dart:convert';
 
 class Command
 {
@@ -23,8 +24,8 @@ class Command
     mirror.invoke(MirrorSystem.getSymbol(action), args);
   }
 
-  List serialize()
+  String serialize()
   {
-    return [targetID, action,  args];
+    return JSON.encode([targetID, action,  args]);
   }
 }

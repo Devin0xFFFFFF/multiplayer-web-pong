@@ -10,7 +10,7 @@ class Player extends GameCommander
   Game game;
   Paddle paddle;
 
-  Player(CommandRouter endpoint, this.paddle) : super(endpoint)
+  Player(this.paddle): super()
   {
 
   }
@@ -24,13 +24,11 @@ class Player extends GameCommander
   {
     if (game.keyboard.isPressed(KeyCode.UP) && !paddle.atGameTopEdge())
     {
-      sendCommand(new Command(paddle.ID, 'setPosition', [paddle.X, paddle.Y - paddle.speed]));
-      //paddle.setPosition(paddle.X, paddle.Y - paddle.speed);
+      sendCommand(new Command(paddle.ID, 'set_position', [paddle.X, paddle.Y - paddle.speed]));
     }
     else if (game.keyboard.isPressed(KeyCode.DOWN) && !paddle.atGameBottomEdge())
     {
-      sendCommand(new Command(paddle.ID, 'setPosition', [paddle.X, paddle.Y + paddle.speed]));
-//      paddle.setPosition(paddle.X, paddle.Y + paddle.speed);
+      sendCommand(new Command(paddle.ID, 'set_position', [paddle.X, paddle.Y + paddle.speed]));
     }
   }
 }

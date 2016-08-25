@@ -3,24 +3,26 @@ import 'package:client/game/core/command.dart';
 
 abstract class GameCommander
 {
-  CommandRouter endpoint;
   Command command;
 
-  GameCommander(this.endpoint);
-
-  static int count = 0;
+  GameCommander()
+  {
+    this.command = null;
+  }
 
   sendCommand(Command command)
   {
     this.command = command;
   }
 
-  pushCommand()
+  List<Command> getCommands()
   {
-    if(command != null) {
-      endpoint.route(command);
-      command = null;
-      //print(count++);
+    List<Command> cmds = [];
+    if(this.command != null)
+    {
+      cmds.add(this.command);
+      this.command = null;
     }
+    return cmds;
   }
 }
