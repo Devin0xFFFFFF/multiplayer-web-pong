@@ -45,8 +45,8 @@ class Matchmaker(MPWPDataSender):
     send_cb = None
     create_game_cb = None
 
-    FOUND_TIMEOUT = 5
-    LOADING_TIMEOUT = 5
+    FOUND_TIMEOUT = 10
+    LOADING_TIMEOUT = 10
 
     def __init__(self, send_cb, create_game_cb):
         self.queue = []
@@ -153,10 +153,16 @@ class Matchmaker(MPWPDataSender):
         return None, None
 
     def matchmake(self):
-        if len(self.queue) > 1:
-            clients = [self.queue[0], self.queue[1]]
-            self.queue = self.queue[2:]
+        # TODO: change this back
+        if len(self.queue) > 0:
+            clients = [self.queue[0]]
+            self.queue = self.queue[1:]
             self.create_pool(clients)
+
+        # if len(self.queue) > 1:
+        #     clients = [self.queue[0], self.queue[1]]
+        #     self.queue = self.queue[2:]
+        #     self.create_pool(clients)
 
     def create_pool(self, clients):
         pool = MatchPool(clients)

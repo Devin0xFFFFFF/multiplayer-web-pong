@@ -1,3 +1,5 @@
+import json
+
 from server_common import mpwp_protocol
 from game.game_core.command import Command
 
@@ -13,10 +15,12 @@ class GameRouter(object):
             cid, index, msg_type, data = commands.pop(0)
 
             if msg_type == mpwp_protocol.GAME_INPUT:
-                self.route_command(cid, data)
+                cmd = json.loads(data.decode())
+                self.route_command(cid, cmd)
 
-    def route_command(self, cid, data):
-        target_id, action, args = data
+    def route_command(self, cid, cmd):
+        target_id, action, args = cmd
+        target_id = target_id.encode()
 
         player = self.game.get_player(cid)
 

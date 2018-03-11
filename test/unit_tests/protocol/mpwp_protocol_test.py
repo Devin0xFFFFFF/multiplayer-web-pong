@@ -22,7 +22,7 @@ class  Mpwp_Protocol_TestCase(unittest.TestCase):
         self.assertEqual(36, len(ID))
 
     def test_get_mpwp_packet(self):
-        packet = mpwp_protocol.get_mpwp_packet(mpwp_protocol.STATUS_OK, b'0', b'0', b'12345', b'0')
+        packet = mpwp_protocol.get_mpwp_packet(mpwp_protocol.STATUS_DATA, b'0', b'0', b'12345', b'0')
         self.assertEqual([b'mpwp_v1.0', b'100', b'0', b'0', b'12345', b'0'], packet)
         
     def test_get_mpwp_status_packet(self):

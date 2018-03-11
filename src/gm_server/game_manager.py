@@ -40,13 +40,13 @@ class GameManager(MPWPDataSender):
         else:
             self.send_to_client_cb(msg)
 
-    def handle_client_incoming(self, to_id, from_id, msg_type, msg_content):
-        gid = to_id
-        cid = from_id
+    def handle_client_incoming(self, msg):
+        gid = msg[mpwp_protocol.MSG_TO]
+        cid = msg[mpwp_protocol.MSG_FROM]
         if gid in self.games:
             game = self.games[gid]
             if cid in game.clients:
-                game.forward_msg([msg_type] + msg_content)
+                self.send_to_game_cb(msg)
             else:
                 self.log(1, "Client '{}' does not exist in Game '{}'".format(cid, gid))
         else:
@@ -62,7 +62,7 @@ class GameManager(MPWPDataSender):
     def handle_game_incoming(self, msg):
         if msg[mpwp_protocol.MSG_STATUS] == mpwp_protocol.STATUS_CONNECT:
             self.connect_game(msg[mpwp_protocol.MSG_FROM])
-        elif msg[mpwp_protocol.MSG_STATUS] == mpwp_protocol.STATUS_OK:
+        elif msg[mpwp_protocol.MSG_STATUS] == mpwp_protocol.STATUS_DATA:
             game = self.games[msg[mpwp_protocol.MSG_FROM]]
             self.forward_to_all_clients(msg, game.clients)
         else:

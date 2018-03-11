@@ -34,6 +34,8 @@ class ClientHandler(MPWPDataSender):
         # AUTH must check if UUID already exists somewhere due to disconnect
         self.listen_server()
 
+        self.log(1, "Shutting Down.")
+
     def connect_to_matchmaker(self):
         self.connect_to_server(mpwp_protocol.MATCHMAKER_ID, config.MATCHMAKER_ADDR)
 
@@ -41,21 +43,29 @@ class ClientHandler(MPWPDataSender):
         self.connect_to_server(mpwp_protocol.GAME_MANAGER_ID, config.GAME_MANAGER_ADDR)
 
     def connect_to_server(self, server_id, server_addr):
+        self.log(1, "Connecting...")
         self.reset_socket()
         self.server_sock.connect(server_addr)
         self.connected = True
+        self.log(1, "Connected to: {}".format(server_addr))
 
         self.send_connect_ok(server_id)
 
     def reset_socket(self):
         self.disconnect()
 
-        self.server_sock = self.context.socket(zmq.DEALER)
+        try:
+            self.log(1, "Creating Socket...")
+            self.server_sock = self.context.socket(zmq.DEALER)
+        except Exception as err:
+            self.log(1, "{}".format(err))
+
         self.server_sock.setsockopt(zmq.IDENTITY, self.ID)
 
     def disconnect(self):
         # add some error checking here if socket fails to close
         if self.connected and self.server_sock:
+            self.log(1, "Disconnecting")
             self.connected = False
             self.server_sock.close()
             self.server_sock = None
@@ -74,17 +84,26 @@ class ClientHandler(MPWPDataSender):
     def listen_server(self):
         while True:
             if self.connected:
-                msg = self.recv_server()
-                self.log(1, msg)
+                try:
+                    msg = self.recv_server()
+                except zmq.Again:
+                    msg = b'1'
+                except Exception as err:
+                    self.log(1, "Error: {}".format(err))
                 if msg:
-                    if msg[mpwp_protocol.MSG_VERSION] == mpwp_protocol.VERSION:
-                        if msg[mpwp_protocol.MSG_TO] == self.ID:
-                            self.send_ws(self.pack(msg))
+                    if type(msg) == list:
+                        self.log(1, msg)
+                        if msg[mpwp_protocol.MSG_VERSION] == mpwp_protocol.VERSION:
+                            if msg[mpwp_protocol.MSG_TO] == self.ID:
+                                self.send_ws(self.pack(msg))
+                            else:
+                                pass  # send INCORRECT_TO_ID_ERROR to server
                         else:
-                            pass  # send INCORRECT_TO_ID_ERROR to server
+                            pass  # send VERSION_MISMATCH_ERROR
                     else:
-                        pass  # send VERSION_MISMATCH_ERROR
+                        pass  # no msg available
                 else:
+                    self.log(1, "Fatal Error")
                     break  # fatal error
             else:
                 pass  # what to do when not connected?
@@ -106,7 +125,10 @@ class ClientHandler(MPWPDataSender):
                             elif msg[mpwp_protocol.MSG_TO] == mpwp_protocol.GAME_MANAGER_ID:
                                 self.connect_to_game_manager()
                         else:
-                            self.forward_to_server(msg)
+                            if msg[mpwp_protocol.MSG_TO] == mpwp_protocol.CLIENT_HANDLER_ID:
+                                self.handle_client_msg(msg)
+                            else:
+                                self.forward_to_server(msg)
                     else:
                         self.handle_connection(msg)
                 else:
@@ -133,6 +155,10 @@ class ClientHandler(MPWPDataSender):
         else:
             pass  # send INCORRECT_TO_ID_ERROR to client
 
+    def handle_client_msg(self, msg):
+        if msg[mpwp_protocol.MSG_STATUS] == mpwp_protocol.STATUS_DISCONNECT:
+            self.disconnect()
+
     def send_ws(self, msg):
         print(msg)
         sys.stdout.flush()
@@ -144,7 +170,7 @@ class ClientHandler(MPWPDataSender):
         self.server_sock.send_multipart(msg)
 
     def recv_server(self):
-        return self.server_sock.recv_multipart()
+        return self.server_sock.recv_multipart(flags=zmq.NOBLOCK)
 
     def send_connect_ok(self, FROM):
         msg = mpwp_protocol.get_mpwp_status_packet(mpwp_protocol.STATUS_CONNECT_OK,

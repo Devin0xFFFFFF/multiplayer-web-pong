@@ -36,7 +36,7 @@ class MockMMClient(MPWPDataSender):
 
     def recv(self, msg):
         print(msg)
-        if msg and msg[mpwp_protocol.MSG_STATUS] == mpwp_protocol.STATUS_OK:
+        if msg and msg[mpwp_protocol.MSG_STATUS] == mpwp_protocol.STATUS_DATA:
             data = mpwp_protocol.msg_data(msg)
             self.handle_incoming(msg[mpwp_protocol.MSG_FROM], data)
 

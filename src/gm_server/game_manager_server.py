@@ -58,11 +58,7 @@ class GameManagerServer(object):
             actual_msg = msg[1:]  # trim off router info
             if router_id == actual_msg[mpwp.MSG_FROM]:
                 if actual_msg[mpwp.MSG_VERSION] == mpwp.VERSION:
-                    to_id = actual_msg[mpwp.MSG_TO]
-                    from_id = actual_msg[mpwp.MSG_FROM]
-                    msg_type = actual_msg[mpwp.MSG_TYPE]
-                    msg_content = mpwp.msg_content(actual_msg)
-                    self.manager.handle_client_incoming(to_id, from_id, msg_type, msg_content)
+                    self.manager.handle_client_incoming(actual_msg)
                 else:
                     pass  # send VERSION_MISMATCH_ERROR
             else:

@@ -63,7 +63,7 @@ class MatchmakerServer(object):
             if router_id == actual_msg[mpwp.MSG_FROM]:
                 if actual_msg[mpwp.MSG_VERSION] == mpwp.VERSION:
                     if actual_msg[mpwp.MSG_TO] == mpwp.MATCHMAKER_ID:
-                        if actual_msg[mpwp.MSG_STATUS] == mpwp.STATUS_OK:
+                        if actual_msg[mpwp.MSG_STATUS] == mpwp.STATUS_DATA:
                             sender_id = actual_msg[mpwp.MSG_FROM]
                             msg_type = actual_msg[mpwp.MSG_TYPE]
                             msg_content = mpwp.msg_content(actual_msg)

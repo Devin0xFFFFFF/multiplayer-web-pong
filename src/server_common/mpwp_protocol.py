@@ -16,7 +16,7 @@ VERSION = b'mpwp_v1.0'
 
 # STATUS CODES
 
-STATUS_OK = b'100'
+STATUS_DATA = b'100'
 STATUS_PING = b'101'
 
 STATUS_CONNECT = b'200'
@@ -71,7 +71,7 @@ def get_mpwp_status_packet(STATUS, TO, FROM):
 
 
 def get_mpwp_content_packet(TO, FROM, MSGNUM, TYPE, CONTENT=None):
-    packet = get_mpwp_packet(STATUS_OK, TO, FROM, MSGNUM, TYPE)
+    packet = get_mpwp_packet(STATUS_DATA, TO, FROM, MSGNUM, TYPE)
     if CONTENT:
         if type(CONTENT) == list:
             packet = packet + CONTENT

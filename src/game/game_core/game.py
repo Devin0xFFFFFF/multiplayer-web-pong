@@ -71,4 +71,4 @@ class Game(GameObject):
         pass
 
     def get_actor_states(self):
-        return {x.ID: x.get_state() for x in self.actors}
+        return {x.ID.decode(): x.get_state() for x in self.actors}

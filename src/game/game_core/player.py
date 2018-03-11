@@ -16,3 +16,6 @@ class Player(GameCommander):
 
     def owns_paddle(self, paddle_id):
         return self.paddle.ID == paddle_id
+
+    def set_client(self, cid):
+        self.ID = cid

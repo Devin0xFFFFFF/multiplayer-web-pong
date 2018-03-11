@@ -69,7 +69,7 @@ class GameServer(object):
         formatted_state = "{0} {1} {2}".format(mpwp_protocol.GAME_STATE,
                                                self.sequence,
                                                {"state": state})
-        return self.get_packet(self.STATUS_OK, "0", formatted_state)
+        return self.get_packet(mpwp_protocol.STATUS_DATA, "0", formatted_state)
 
     def publish_state(self, state):
         state_packet = self.get_state_packet(state)
